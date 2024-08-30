@@ -20,8 +20,9 @@ export const deleteUser = async(req, res)=>{
     //console.log(req.params);
     try{
         let deletedUser = await User.findByIdAndDelete(req.params.id);
-        let deletequestion = await Question.deleteMany({postedBy:deletedUser.username});//delete question
-        let deleteanswer = await Answer.deleteMany({postedBy:deletedUser.username});//delete answer
+        let deletequestion = await Question.deleteMany({'user.username': deletedUser.username});
+
+        let deleteanswer = await Answer.deleteMany({'user.username':deletedUser.username});//delete answer
         res.status(200).json("success");
     }
     catch(e)

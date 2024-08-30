@@ -15,7 +15,6 @@ export const addQuestion = async (req, res) => {
             title: req.body.title,
             question: req.body.question,
             tags: req.body.tags,
-            postedBy: user.username,
             votes: 0
         })
 
@@ -30,7 +29,8 @@ export const addQuestion = async (req, res) => {
 //===============================================Fetch all questions in reverse order=========================================
 export const fetchQuestions = async (req, res) => {
     try {
-        const questions = await Question.find();
+        const questions = await Question.find().populate('user', 'username');
+        console.log(questions);
         res.status(200).json(questions.reverse());
     }
     catch (e) {
@@ -42,7 +42,8 @@ export const fetchQuestions = async (req, res) => {
 //===============================================Fetch all questions in order of votes=========================================
 export const fetchQuestionsByHigherVotes =  async (req, res) => {
     try {
-        const questions = await Question.find().sort({ votes: -1 });
+        const questions = await Question.find().populate('user', 'username').sort({ votes: -1 });
+        console.log(questions);
         res.status(200).json(questions);
     }
     catch (e) {
@@ -54,7 +55,7 @@ export const fetchQuestionsByHigherVotes =  async (req, res) => {
 //===============================================Fetch a single question by id=========================================
 export const fetchQuestionsById = async (req, res) => {
     try {
-        let question = await Question.findOne({ _id: req.params.id });
+        let question = await Question.findOne({ _id: req.params.id }).populate('user', 'username');
 
         if (!question) {
             return res.status(404).send("Question not Found");
@@ -108,7 +109,7 @@ export const fetchUserQuestions= async (req, res) => {
         //console.log(req.query);
         let user = await User.findOne({ username: req.query.username });
 
-        const questions = await Question.find({ user: user._id });
+        const questions = await Question.find({ user: user._id }).populate('user', 'username');
 
         if (!questions) {
             return res.status(404).send("Question not Found");
@@ -134,7 +135,7 @@ export const fetchUserFilteredQuestions= async (req, res) => {
 
         const questions = await Question.find({
             user: user._id
-        });
+        }).populate('user', 'username');
 
         if (!questions) {
             return res.status(404).send("Question not Found");
@@ -194,7 +195,7 @@ export const fetchFilteredQuestions=async (req, res) => {
         const endDate = req.query.endDate;
         const tags = req.query.tags;
 
-        const questions = await Question.find();
+        const questions = await Question.find().populate('user', 'username');
         //console.log(questions);
         if (!questions) {
             return res.status(404).send("Question not Found");
@@ -361,7 +362,7 @@ export const fetchAllVotes= async (req, res) => {
 export const answeredQuestions=async (req, res) => {
 
     const answers = await Answer.find();
-    const questions = await Question.find();
+    const questions = await Question.find().populate('user', 'username');
 
     let ansobj = {};
 
@@ -385,7 +386,7 @@ export const answeredQuestions=async (req, res) => {
 //===============================================fetch all unanswered question=========================================
 export const unansweredQuestions=async (req, res) => {
     const answers = await Answer.find();
-    const questions = await Question.find();
+    const questions = await Question.find().populate('user', 'username');
 
     let ansobj = {};
 
